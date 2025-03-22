@@ -1,22 +1,15 @@
-const fetchSubnodes = (node_id = "ott93302") => {
-  fetch("https://api.opentreeoflife.org/v3/tree_of_life/subtree", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      node_id: "ott93302",
-      format: "arguson",
-      height_limit: 1
-    }),
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      console.log("Success:", data);
-      return data;
-    })
-    .catch((error) => {
-      console.error("Error:", error);
-    });
+import ollama from "ollama";
 
-};
+const category = "Eukaryota";
+const selectedModel = "gemma3:12b"; // Define or import accordingly
+
+try {
+  const output = await ollama.generate({
+    model: selectedModel,
+    prompt: `Please generate a brief description of ${category} in the context of a taxonomy tree, including what the category is, notable examples, characteristics, etc.`,
+  });
+  
+  console.log(output.response); // Adjust based on actual API response shape
+} catch (error) {
+  console.error("Error generating description:", error);
+}

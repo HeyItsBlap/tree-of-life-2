@@ -611,9 +611,9 @@ nav.header .a:hover ~ .cursor {
   }
 }
 
-/** Buttons Styling*/
+/** Buttons Styling */
 .branch-button {
-  background: rgba(117, 161, 255, 0.8);
+  background: rgba(0, 128, 128, 0.8); /* Teal background */
   color: white;
   border: none;
   border-radius: 5px;
@@ -624,5 +624,14 @@ nav.header .a:hover ~ .cursor {
   transform: translate(-50%, -50%);
   z-index: 10;
   cursor: pointer;
-  font-family: 'Nanum Myeongjo', serif;;
+  font-family: 'Nanum Myeongjo', serif;
+  pointer-events: auto;
+  transition: transform 0.2s, background-color 0.2s, box-shadow 0.2s;
 }
+
+.branch-button:hover {
+  background-color: rgba(0, 180, 180, 1); /* Brighter teal on hover */
+  transform: translate(-50%, -50%) scale(1.1); /* Zoom effect */
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.7); /* Teal glow */
+}
+
