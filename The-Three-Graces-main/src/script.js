@@ -30,20 +30,23 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function setBranches(data, children, currentTrees) {
-  let name = data.arguson.taxon.name;
-  let id = data.arguson.node_id;
-  children = data.arguson.children;
+  if (data.arguson.name) {
 
-  currentTrees.push({ name, id });
-  children.forEach((element) => {
-    console.log(element)
-    let name = element.taxon.name;
-    let id = element.node_id;
+    let name = data.arguson.taxon.name;
+    let id = data.arguson.node_id;
+    children = data.arguson.children;
+    
     currentTrees.push({ name, id });
-  });
-  const branchButtonPositions = calculateBranchPositions(currentTrees);
-
-  loadSubnodeButtons(currentTrees, branchButtonPositions);
+    children.forEach((element) => {
+      console.log(element)
+      let name = element.taxon.name;
+      let id = element.node_id;
+      currentTrees.push({ name, id });
+    });
+    const branchButtonPositions = calculateBranchPositions(currentTrees);
+    
+    loadSubnodeButtons(currentTrees, branchButtonPositions);
+  }
 }
 
 // Calculate the branch positions
