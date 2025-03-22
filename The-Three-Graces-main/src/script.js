@@ -16,30 +16,35 @@ import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { Vector3 } from "three";
 
+let subnodesData = {};
 document.addEventListener("DOMContentLoaded", () => {
-  const subnodesData = fetchSubnodes();
+  subnodesData = fetchSubnodes();
   const currentTrees = [];
 
   //const currentTrees = extractSubnodes(subnodesData);
-  console.log(currentTrees);
+  
   var children = [];
   subnodesData.then((data) => {
-    let name = data.arguson.taxon.name;
-    let id = data.arguson.node_id;
-    children = data.arguson.children;
-
-    currentTrees.push({ name, id });
-    children.forEach((element) => {
-      let name = element.taxon.name;
-      let id = element.node_id;
-      currentTrees.push({ name, id });
-    });
-    const branchButtonPositions = calculateBranchPositions(currentTrees);
-    console.log(branchButtonPositions);
-
-    loadSubnodeButtons(currentTrees, branchButtonPositions);
+    setBranches(data, children, currentTrees);
   });
 });
+
+function setBranches(data, children, currentTrees) {
+  let name = data.arguson.taxon.name;
+  let id = data.arguson.node_id;
+  children = data.arguson.children;
+
+  currentTrees.push({ name, id });
+  children.forEach((element) => {
+    console.log(element)
+    let name = element.taxon.name;
+    let id = element.node_id;
+    currentTrees.push({ name, id });
+  });
+  const branchButtonPositions = calculateBranchPositions(currentTrees);
+
+  loadSubnodeButtons(currentTrees, branchButtonPositions);
+}
 
 // Calculate the branch positions
 function calculateBranchPositions(children) {
@@ -86,14 +91,14 @@ function calculateBranchPositions(children) {
   return positions;
 }
 
-const fetchSubnodes = async (node_id = "ott93302") => {
+const fetchSubnodes = async (nodeId = "ott93302") => {
   return await fetch("https://api.opentreeoflife.org/v3/tree_of_life/subtree", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      node_id: "ott93302",
+      node_id: nodeId,
       format: "arguson",
       height_limit: 1,
     }),
@@ -302,11 +307,20 @@ const loadSubnodeButtons = (currentTrees, branchButtonPositions) => {
     const y = (-vector.y * 0.5 + 0.5) * window.innerHeight;
 
     btn.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)`;
-
+    btn.setAttribute("tree-id", currentTrees[index].id)
     //click behavior
-    btn.addEventListener("click", () => {
-      alert(`Clicked Node ${index + 1}`);
+    btn.addEventListener("click", (e) => {
+      // alert(`Clicked Node ${index + 1}`);
       // Add taxonomy logic here
+      console.log(e.target)
+      console.log(currentTrees[index]);
+      let id = e.target.getAttribute('tree-id');
+      subnodesData = fetchSubnodes(id);
+      currentTrees = [];
+      var children = [];
+      subnodesData.then((data) => {
+        setBranches(data, children, currentTrees);
+      });
     });
 
     // Store for updates
