@@ -34,10 +34,57 @@ document.addEventListener("DOMContentLoaded", () => {
       let id = element.node_id;
       currentTrees.push({ name, id });
     });
+    const branchButtonPositions = calculateBranchPositions(currentTrees);
+    console.log(branchButtonPositions);
 
-    loadSubnodeButtons(currentTrees);
+    loadSubnodeButtons(currentTrees, branchButtonPositions);
   });
 });
+
+// Calculate the branch positions
+function calculateBranchPositions(children) {
+  // Always return early if there's nothing in the array
+  if (!children || children.length === 0) return [];
+
+  // 1) Root label (first item) at the bottom/center
+  const rootPos = { x: 0, y: 1.8, z: 1.0 };
+  const positions = [rootPos];
+
+  // 2) Determine how many branch labels we have
+  const branchCount = children.length - 1; // excluding the root
+  if (branchCount <= 0) {
+    // Only one item in the array, so just return the root position
+    return positions;
+  }
+
+  // 3) Arc configuration
+  //    - The labels will be distributed from startAngle to endAngle,
+  //      forming a partial arc above the root.
+  const startAngle = -Math.PI;
+  const endAngle = Math.PI / 2;
+  const radius = 2.0; // how far out horizontally from the root
+  const baseHeight = rootPos.y + 0.8; // baseline for branch labels (slightly above the root)
+  const verticalStep = 0.2; // how much each label moves upward from the previous
+
+  // 4) Loop through each branch label
+  for (let i = 0; i < branchCount; i++) {
+    // t is a normalized value in [0..1] used to interpolate between angles
+    const t = branchCount > 1 ? i / (branchCount - 1) : 0.5;
+    const angle = startAngle + (endAngle - startAngle) * t;
+
+    // 5) Convert polar coordinates to 3D (x, z) around the root
+    //    so they fan out horizontally
+    const x = rootPos.x + Math.cos(angle) * radius;
+    const z = rootPos.z + Math.sin(angle) * radius;
+
+    // 6) Increase the y position slightly for each label so they stack upward
+    const y = baseHeight + i * verticalStep;
+
+    positions.push({ x, y, z });
+  }
+
+  return positions;
+}
 
 const fetchSubnodes = async (node_id = "ott93302") => {
   return await fetch("https://api.opentreeoflife.org/v3/tree_of_life/subtree", {
@@ -59,15 +106,14 @@ const loadingManager = new LoadingManager();
 
 //buttons
 
-const branchButtonPositions = [
-  { x: 0, y: 1.8, z: 1.0 },
-  { x: -1, y: 3.0, z: -0.7 },
-  { x: 1, y: 3.0, z: -0.7 },
-  { x: 2, y: 2.5, z: -1 },
+// const branchButtonPositions = [
+//   { x: 0, y: 1.8, z: 1.0 },
+//   { x: -1, y: 3.0, z: -0.7 },
+//   { x: 1, y: 3.0, z: -0.7 },
+//   { x: 2, y: 2.5, z: -1 },
 
-
-  // Add more as needed
-];
+//   // Add more as needed
+// ];
 
 const branchButtons = [];
 
@@ -238,7 +284,7 @@ function introAnimation() {
 }
 
 //load buttons on load
-const loadSubnodeButtons = (currentTrees) => {
+const loadSubnodeButtons = (currentTrees, branchButtonPositions) => {
   console.log(currentTrees);
   branchButtonPositions.forEach((pos, index) => {
     const btn = document.createElement("button");
