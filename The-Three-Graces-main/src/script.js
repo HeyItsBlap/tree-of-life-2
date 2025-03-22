@@ -16,6 +16,44 @@ import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { Vector3 } from 'three';
 
+document.addEventListener("DOMContentLoaded", () => {
+
+  
+  const subnodesData = fetchSubnodes();
+  const currentTrees = []; 
+
+  //const currentTrees = extractSubnodes(subnodesData);
+  console.log(currentTrees);
+  var children = []
+  subnodesData.then(data =>
+      {
+      let currentBranchName = data.arguson.taxon.name
+      children = data.arguson.children
+      currentTrees.push(currentBranchName);
+      children.forEach(element => {
+        currentTrees.push(element.taxon.name)
+      });
+      loadSubnodeButtons(currentTrees);
+      });
+  
+});
+
+
+const fetchSubnodes = async (node_id = "ott93302") => {
+  return await fetch("https://api.opentreeoflife.org/v3/tree_of_life/subtree", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      node_id: "ott93302",
+      format: "arguson",
+      height_limit: 1
+    }),
+  })
+    .then((response) => response.json())
+};
+
 
 const ftsLoader = document.querySelector('.loader-roll');
 const looadingCover = document.getElementById('loading-text-intro');
@@ -202,38 +240,39 @@ function introAnimation() {
     });
 }
 
-const currentTrees = ["Cellular Organisms", "Archae", "Eukaryota", "Bacteria", "Placeholder"];
-
 //load buttons on load
-branchButtonPositions.forEach((pos, index) => {
-  const btn = document.createElement('button');
-  btn.className = 'branch-button';
-  btn.innerText = currentTrees[index];
-  btn.style.position = 'absolute';
-  btn.style.pointerEvents = 'auto';
-  document.body.appendChild(btn);
+const loadSubnodeButtons = (currentTrees) => {
 
-  // Initial position calculation
-  const vector = new Vector3(pos.x, pos.y, pos.z).clone();
-  vector.project(camera);
-
-  const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
-  const y = (-vector.y * 0.5 + 0.5) * window.innerHeight;
-
-  btn.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)`;
-
-  //click behavior
-  btn.addEventListener('click', () => {
-    alert(`Clicked Node ${index + 1}`);
-    // Add taxonomy logic here
+  branchButtonPositions.forEach((pos, index) => {
+    const btn = document.createElement('button');
+    btn.className = 'branch-button';
+    btn.innerText = currentTrees[index];
+    btn.style.position = 'absolute';
+    btn.style.pointerEvents = 'auto';
+    document.body.appendChild(btn);
+    
+    // Initial position calculation
+    const vector = new Vector3(pos.x, pos.y, pos.z).clone();
+    vector.project(camera);
+    
+    const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
+    const y = (-vector.y * 0.5 + 0.5) * window.innerHeight;
+    
+    btn.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)`;
+    
+    //click behavior
+    btn.addEventListener('click', () => {
+      alert(`Clicked Node ${index + 1}`);
+      // Add taxonomy logic here
+    });
+    
+    // Store for updates
+    branchButtons.push({
+      position: new Vector3(pos.x, pos.y, pos.z),
+      element: btn,
+    });
   });
-
-  // Store for updates
-  branchButtons.push({
-    position: new Vector3(pos.x, pos.y, pos.z),
-    element: btn,
-  });
-});
+}
 
 // click event listeners
 document.getElementById('aglaea').addEventListener('click', () => {
