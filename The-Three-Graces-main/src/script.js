@@ -14,10 +14,26 @@ import {
 import { TWEEN } from 'three/examples/jsm/libs/tween.module.min.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { Vector3 } from 'three';
+
 
 const ftsLoader = document.querySelector('.loader-roll');
 const looadingCover = document.getElementById('loading-text-intro');
 const loadingManager = new LoadingManager();
+
+//buttons
+
+const branchButtonPositions = [
+  { x: 0, y: 1.8, z: 1.0  },
+  { x: -1, y: 3.0, z: -0.7 },
+  { x: 1, y: 3.0, z: -0.7 },
+  { x: 2, y: 2.5, z: -1},
+  { x: -2, y: 2.5, z: -1},
+
+  // Add more as needed
+];
+
+const branchButtons = [];
 
 loadingManager.onLoad = function () {
   document.querySelector('.main-container').style.visibility = 'visible';
@@ -47,6 +63,7 @@ loadingManager.onLoad = function () {
 
   window.scroll(0, 0);
 };
+
 
 // draco loader
 const dracoLoader = new DRACOLoader();
@@ -185,6 +202,39 @@ function introAnimation() {
     });
 }
 
+const currentTrees = ["Cellular Organisms", "Archae", "Eukaryota", "Bacteria", "Placeholder"];
+
+//load buttons on load
+branchButtonPositions.forEach((pos, index) => {
+  const btn = document.createElement('button');
+  btn.className = 'branch-button';
+  btn.innerText = currentTrees[index];
+  btn.style.position = 'absolute';
+  btn.style.pointerEvents = 'auto';
+  document.body.appendChild(btn);
+
+  // Initial position calculation
+  const vector = new Vector3(pos.x, pos.y, pos.z).clone();
+  vector.project(camera);
+
+  const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
+  const y = (-vector.y * 0.5 + 0.5) * window.innerHeight;
+
+  btn.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)`;
+
+  //click behavior
+  btn.addEventListener('click', () => {
+    alert(`Clicked Node ${index + 1}`);
+    // Add taxonomy logic here
+  });
+
+  // Store for updates
+  branchButtons.push({
+    position: new Vector3(pos.x, pos.y, pos.z),
+    element: btn,
+  });
+});
+
 // click event listeners
 document.getElementById('aglaea').addEventListener('click', () => {
   document.getElementById('aglaea').classList.add('active');
@@ -239,6 +289,17 @@ let previousTime = 0;
 // render loop function
 function renderLoop() {
   TWEEN.update();
+
+  //buttons
+  branchButtons.forEach(({ position, element }) => {
+    const pos = position.clone();
+    pos.project(camera); // project 3D to 2D
+  
+    const x = (pos.x * 0.5 + 0.5) * window.innerWidth;
+    const y = (-pos.y * 0.5 + 0.5) * window.innerHeight;
+  
+    element.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)`;
+  });
 
   if (secondContainer) {
     renderer2.render(scene, camera2);

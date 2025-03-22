@@ -610,3 +610,19 @@ nav.header .a:hover ~ .cursor {
     margin-bottom: 40px;
   }
 }
+
+/** Buttons Styling*/
+.branch-button {
+  background: rgba(117, 161, 255, 0.8);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 10px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  cursor: pointer;
+  font-family: 'Nanum Myeongjo', serif;;
+}
