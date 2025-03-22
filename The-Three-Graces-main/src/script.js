@@ -288,6 +288,9 @@ function introAnimation() {
     });
 }
 
+//get AI text element
+const content = document.getElementById("content");
+
 //load buttons on load
 const loadSubnodeButtons = (currentTrees, branchButtonPositions) => {
   console.log(currentTrees);
@@ -309,8 +312,14 @@ const loadSubnodeButtons = (currentTrees, branchButtonPositions) => {
     btn.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)`;
     btn.setAttribute("tree-id", currentTrees[index].id)
     //click behavior
-    btn.addEventListener("click", (e) => {
-      // alert(`Clicked Node ${index + 1}`);
+    btn.addEventListener("click", async (e) => {
+          //click behavior
+      alert(`Clicked Node ${index + 1}`);
+      const response = await fetch (`http://localhost:3000/${btn.innerText}`)
+      const data = await response.json()
+      console.log(data)
+      content.innerText = data;
+
       // Add taxonomy logic here
       console.log(e.target)
       console.log(currentTrees[index]);
