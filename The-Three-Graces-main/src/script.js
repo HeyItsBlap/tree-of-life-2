@@ -1,4 +1,4 @@
-import './main.css';
+import "./main.css";
 import {
   Clock,
   Scene,
@@ -10,34 +10,34 @@ import {
   DirectionalLight,
   PointLight,
   MeshPhongMaterial,
-} from 'three';
-import { TWEEN } from 'three/examples/jsm/libs/tween.module.min.js';
-import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { Vector3 } from 'three';
+} from "three";
+import { TWEEN } from "three/examples/jsm/libs/tween.module.min.js";
+import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { Vector3 } from "three";
 
 document.addEventListener("DOMContentLoaded", () => {
-
-  
   const subnodesData = fetchSubnodes();
-  const currentTrees = []; 
+  const currentTrees = [];
 
   //const currentTrees = extractSubnodes(subnodesData);
   console.log(currentTrees);
-  var children = []
-  subnodesData.then(data =>
-      {
-      let currentBranchName = data.arguson.taxon.name
-      children = data.arguson.children
-      currentTrees.push(currentBranchName);
-      children.forEach(element => {
-        currentTrees.push(element.taxon.name)
-      });
-      loadSubnodeButtons(currentTrees);
-      });
-  
-});
+  var children = [];
+  subnodesData.then((data) => {
+    let name = data.arguson.taxon.name;
+    let id = data.arguson.node_id;
+    children = data.arguson.children;
 
+    currentTrees.push({ name, id });
+    children.forEach((element) => {
+      let name = element.taxon.name;
+      let id = element.node_id;
+      currentTrees.push({ name, id });
+    });
+
+    loadSubnodeButtons(currentTrees);
+  });
+});
 
 const fetchSubnodes = async (node_id = "ott93302") => {
   return await fetch("https://api.opentreeoflife.org/v3/tree_of_life/subtree", {
@@ -48,25 +48,23 @@ const fetchSubnodes = async (node_id = "ott93302") => {
     body: JSON.stringify({
       node_id: "ott93302",
       format: "arguson",
-      height_limit: 1
+      height_limit: 1,
     }),
-  })
-    .then((response) => response.json())
+  }).then((response) => response.json());
 };
 
-
-const ftsLoader = document.querySelector('.loader-roll');
-const looadingCover = document.getElementById('loading-text-intro');
+const ftsLoader = document.querySelector(".loader-roll");
+const looadingCover = document.getElementById("loading-text-intro");
 const loadingManager = new LoadingManager();
 
 //buttons
 
 const branchButtonPositions = [
-  { x: 0, y: 1.8, z: 1.0  },
+  { x: 0, y: 1.8, z: 1.0 },
   { x: -1, y: 3.0, z: -0.7 },
   { x: 1, y: 3.0, z: -0.7 },
-  { x: 2, y: 2.5, z: -1},
-  { x: -2, y: 2.5, z: -1},
+  { x: 2, y: 2.5, z: -1 },
+
 
   // Add more as needed
 ];
@@ -74,8 +72,8 @@ const branchButtonPositions = [
 const branchButtons = [];
 
 loadingManager.onLoad = function () {
-  document.querySelector('.main-container').style.visibility = 'visible';
-  document.querySelector('body').style.overflow = 'auto';
+  document.querySelector(".main-container").style.visibility = "visible";
+  document.querySelector("body").style.overflow = "auto";
 
   const yPosition = { y: 0 };
 
@@ -85,13 +83,13 @@ loadingManager.onLoad = function () {
     .start()
     .onUpdate(function () {
       looadingCover.style.setProperty(
-        'transform',
+        "transform",
         `translate( 0, ${yPosition.y}%)`
       );
     })
     .onComplete(function () {
       looadingCover.parentNode.removeChild(
-        document.getElementById('loading-text-intro')
+        document.getElementById("loading-text-intro")
       );
       TWEEN.remove(this);
     });
@@ -102,17 +100,16 @@ loadingManager.onLoad = function () {
   window.scroll(0, 0);
 };
 
-
 // draco loader
 const dracoLoader = new DRACOLoader();
-dracoLoader.setDecoderPath('/draco/');
-dracoLoader.setDecoderConfig({ type: 'js' });
+dracoLoader.setDecoderPath("/draco/");
+dracoLoader.setDecoderConfig({ type: "js" });
 const loader = new GLTFLoader(loadingManager);
 loader.setDRACOLoader(dracoLoader);
 
-const container = document.getElementById('canvas-container-hero');
-const containerDetails = document.getElementById('canvas-container-goddesses');
-const containerFooter = document.getElementById('canvas-container-euphre');
+const container = document.getElementById("canvas-container-hero");
+const containerDetails = document.getElementById("canvas-container-goddesses");
+const containerFooter = document.getElementById("canvas-container-euphre");
 
 let oldMaterial;
 let secondContainer = false;
@@ -126,7 +123,7 @@ const scene = new Scene();
 const renderer = new WebGLRenderer({
   antialias: true,
   alpha: true,
-  powerPreference: 'high-performance',
+  powerPreference: "high-performance",
 });
 renderer.autoClear = true;
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1));
@@ -175,7 +172,7 @@ camera3.rotation.set(0, -0.8, 0);
 scene.add(camera3);
 
 // resize event listener
-window.addEventListener('resize', () => {
+window.addEventListener("resize", () => {
   camera.aspect = container.clientWidth / container.clientHeight;
   camera.updateProjectionMatrix();
 
@@ -207,14 +204,14 @@ fillLight.position.set(30, 3, 1.8);
 scene.add(fillLight);
 
 // load model
-loader.load('models/gltf/treeSecond.glb', function (gltf) {
+loader.load("models/gltf/treeSecond.glb", function (gltf) {
   gltf.scene.traverse((obj) => {
     if (obj.isMesh) {
       oldMaterial = obj.material;
       obj.material = new MeshPhongMaterial({
-        color: 0x0A290A,      // Dark green 
-        specular: 0x008080,   // Teal highlight
-        shininess: 60,        // Controlled shininess
+        color: 0x0a290a, // Dark green
+        specular: 0x008080, // Teal highlight
+        shininess: 60, // Controlled shininess
       });
     }
   });
@@ -235,69 +232,69 @@ function introAnimation() {
     .start()
     .onComplete(function () {
       TWEEN.remove(this);
-      document.querySelector('.header').classList.add('ended');
-      document.querySelector('.hero>p').classList.add('ended');
+      document.querySelector(".header").classList.add("ended");
+      document.querySelector(".hero>p").classList.add("ended");
     });
 }
 
 //load buttons on load
 const loadSubnodeButtons = (currentTrees) => {
-
+  console.log(currentTrees);
   branchButtonPositions.forEach((pos, index) => {
-    const btn = document.createElement('button');
-    btn.className = 'branch-button';
-    btn.innerText = currentTrees[index];
-    btn.style.position = 'absolute';
-    btn.style.pointerEvents = 'auto';
+    const btn = document.createElement("button");
+    btn.className = "branch-button";
+    btn.innerText = currentTrees[index].name;
+    btn.style.position = "absolute";
+    btn.style.pointerEvents = "auto";
     document.body.appendChild(btn);
-    
+
     // Initial position calculation
     const vector = new Vector3(pos.x, pos.y, pos.z).clone();
     vector.project(camera);
-    
+
     const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
     const y = (-vector.y * 0.5 + 0.5) * window.innerHeight;
-    
+
     btn.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)`;
-    
+
     //click behavior
-    btn.addEventListener('click', () => {
+    btn.addEventListener("click", () => {
       alert(`Clicked Node ${index + 1}`);
       // Add taxonomy logic here
     });
-    
+
     // Store for updates
     branchButtons.push({
       position: new Vector3(pos.x, pos.y, pos.z),
       element: btn,
     });
   });
-}
+};
 
 // click event listeners
-document.getElementById('aglaea').addEventListener('click', () => {
-  document.getElementById('aglaea').classList.add('active');
-  document.getElementById('euphre').classList.remove('active');
-  document.getElementById('thalia').classList.remove('active');
-  document.getElementById('content').innerHTML =
-    'She was venerated as the goddess of beauty, splendor, glory, magnificence, and adornment. She is the youngest of the Charites according to Hesiod. Aglaea is one of three daughters of Zeus and either the Oceanid Eurynome, or of Eunomia, the goddess of good order and lawful conduct.';
+document.getElementById("aglaea").addEventListener("click", () => {
+  document.getElementById("aglaea").classList.add("active");
+  document.getElementById("euphre").classList.remove("active");
+  document.getElementById("thalia").classList.remove("active");
+  document.getElementById("content").innerHTML =
+    "She was venerated as the goddess of beauty, splendor, glory, magnificence, and adornment. She is the youngest of the Charites according to Hesiod. Aglaea is one of three daughters of Zeus and either the Oceanid Eurynome, or of Eunomia, the goddess of good order and lawful conduct.";
   animateCamera({ x: 1.9, y: 2.7, z: 2.7 }, { y: 1.1 });
 });
 
-document.getElementById('thalia').addEventListener('click', () => {
-  document.getElementById('thalia').classList.add('active');
-  document.getElementById('aglaea').classList.remove('active');
-  document.getElementById('euphre').classList.remove('active');
-  document.getElementById('content').innerHTML =
-    'Thalia, in Greek religion, one of the nine Muses, patron of comedy; also, according to the Greek poet Hesiod, a Grace (one of a group of goddesses of fertility). She is the mother of the Corybantes, celebrants of the Great Mother of the Gods, Cybele, the father being Apollo, a god related to music and dance. In her hands she carried the comic mask and the shepherd’s staff.';
+document.getElementById("thalia").addEventListener("click", () => {
+  document.getElementById("thalia").classList.add("active");
+  document.getElementById("aglaea").classList.remove("active");
+  document.getElementById("euphre").classList.remove("active");
+  document.getElementById("content").innerHTML =
+    "Thalia, in Greek religion, one of the nine Muses, patron of comedy; also, according to the Greek poet Hesiod, a Grace (one of a group of goddesses of fertility). She is the mother of the Corybantes, celebrants of the Great Mother of the Gods, Cybele, the father being Apollo, a god related to music and dance. In her hands she carried the comic mask and the shepherd’s staff.";
   animateCamera({ x: -0.9, y: 3.1, z: 2.6 }, { y: -0.1 });
 });
 
-document.getElementById('euphre').addEventListener('click', () => {
-  document.getElementById('euphre').classList.add('active');
-  document.getElementById('aglaea').classList.remove('active');
-  document.getElementById('thalia').classList.remove('active');
-  document.getElementById('content').innerHTML =
+document.getElementById("euphre").addEventListener("click", () => {
+  document.getElementById("euphre").classList.add("active");
+  document.getElementById("aglaea").classList.remove("active");
+  document.getElementById("thalia").classList.remove("active");
+  document.getElementById("content").innerHTML =
     'Euphrosyne is a Goddess of Good Cheer, Joy and Mirth. Her name is the female version of a Greek word euphrosynos, which means "merriment". The Greek poet Pindar states that these goddesses were created to fill the world with pleasant moments and good will. Usually the Charites attended the goddess of beauty Aphrodite.';
   animateCamera({ x: -0.4, y: 2.7, z: 1.9 }, { y: -0.6 });
 });
@@ -333,10 +330,10 @@ function renderLoop() {
   branchButtons.forEach(({ position, element }) => {
     const pos = position.clone();
     pos.project(camera); // project 3D to 2D
-  
+
     const x = (pos.x * 0.5 + 0.5) * window.innerWidth;
     const y = (-pos.y * 0.5 + 0.5) * window.innerHeight;
-  
+
     element.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)`;
   });
 
@@ -371,7 +368,7 @@ renderLoop();
 
 // mouse move event listener
 document.addEventListener(
-  'mousemove',
+  "mousemove",
   (event) => {
     event.preventDefault();
 
@@ -384,7 +381,7 @@ document.addEventListener(
 );
 
 // intersection observer
-const watchedSection = document.querySelector('.goddesses');
+const watchedSection = document.querySelector(".goddesses");
 
 function obCallback(payload) {
   if (payload[0].intersectionRatio > 0.05) {
@@ -401,14 +398,14 @@ const ob = new IntersectionObserver(obCallback, {
 ob.observe(watchedSection);
 
 // magnet effect
-const btn = document.querySelectorAll('nav > .a');
-const customCursor = document.querySelector('.cursor');
+const btn = document.querySelectorAll("nav > .a");
+const customCursor = document.querySelector(".cursor");
 
 function update(e) {
-  const span = this.querySelector('span');
+  const span = this.querySelector("span");
 
-  if (e.type === 'mouseleave') {
-    span.style.cssText = '';
+  if (e.type === "mouseleave") {
+    span.style.cssText = "";
   } else {
     const { offsetX: x, offsetY: y } = e,
       { offsetWidth: width, offsetHeight: height } = this,
@@ -425,5 +422,5 @@ const handleCursor = (e) => {
   customCursor.style.cssText = `left: ${x}px; top: ${y}px;`;
 };
 
-btn.forEach((b) => b.addEventListener('mousemove', update));
-btn.forEach((b) => b.addEventListener('mouseleave', update));
+btn.forEach((b) => b.addEventListener("mousemove", update));
+btn.forEach((b) => b.addEventListener("mouseleave", update));
