@@ -157,7 +157,9 @@ loader.load('models/gltf/treeSecond.glb', function (gltf) {
     if (obj.isMesh) {
       oldMaterial = obj.material;
       obj.material = new MeshPhongMaterial({
-        shininess: 45,
+        color: 0x0A290A,      // Dark green 
+        specular: 0x008080,   // Teal highlight
+        shininess: 60,        // Controlled shininess
       });
     }
   });
