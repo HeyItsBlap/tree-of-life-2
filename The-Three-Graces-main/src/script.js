@@ -30,23 +30,20 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function setBranches(data, children, currentTrees) {
-  if (data.arguson.name) {
+  let name = data.arguson.taxon.name;
+  let id = data.arguson.node_id;
+  children = data.arguson.children;
 
-    let name = data.arguson.taxon.name;
-    let id = data.arguson.node_id;
-    children = data.arguson.children;
-    
+  currentTrees.push({ name, id });
+  children.forEach((element) => {
+    console.log(element)
+    let name = element.taxon.name;
+    let id = element.node_id;
     currentTrees.push({ name, id });
-    children.forEach((element) => {
-      console.log(element)
-      let name = element.taxon.name;
-      let id = element.node_id;
-      currentTrees.push({ name, id });
-    });
-    const branchButtonPositions = calculateBranchPositions(currentTrees);
-    
-    loadSubnodeButtons(currentTrees, branchButtonPositions);
-  }
+  });
+  const branchButtonPositions = calculateBranchPositions(currentTrees);
+
+  loadSubnodeButtons(currentTrees, branchButtonPositions);
 }
 
 // Calculate the branch positions
@@ -293,6 +290,7 @@ function introAnimation() {
 
 //get AI text element
 const content = document.getElementById("content");
+const currentClick = document.getElementById("aglaea");
 
 //load buttons on load
 const loadSubnodeButtons = (currentTrees, branchButtonPositions) => {
@@ -317,11 +315,15 @@ const loadSubnodeButtons = (currentTrees, branchButtonPositions) => {
     //click behavior
     btn.addEventListener("click", async (e) => {
           //click behavior
-      alert(`Clicked Node ${index + 1}`);
+      //change currentClick
+      currentClick.innerText = btn.innerText
+      //clear current paragraph
+      content.innerText = 'Loading...';
       const response = await fetch (`http://localhost:3000/${btn.innerText}`)
       const data = await response.json()
       console.log(data)
       content.innerText = data;
+
 
       // Add taxonomy logic here
       console.log(e.target)
